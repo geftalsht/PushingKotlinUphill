@@ -1,17 +1,5 @@
 fun main() {
     val foobar = listOf(12, 13, 2341, 3211)
-    println(foobar)
-    println(factorial(5))
-    println(fibonacci(12))
-    println(foobar.drop(2))
-    println(foobar.isSorted { a, b -> a < b })
-    println(foobar.dropWhile { a -> a < 2000 })
-    println(foobar.init())
-    val barfoo = foobar.append(1311)
-    println(foobar)
-    println(barfoo)
-    println(foobar.foldLeft(0) { a,b -> a + b })
-    println(barfoo.foldLeft(0) { a,b -> a + b })
 }
 
 sealed interface List<out T> {
@@ -56,10 +44,10 @@ fun <T> List<T>.init(): List<T> =
             else List.Cons(head, tail.init())
     }
 
-fun <T> List<T>.append(t: T): List<T> =
+fun <T> List<T>.oldAppend(t: T): List<T> =
     when (this) {
         is List.Empty -> List.Cons(t, List.Empty)
-        is List.Cons -> List.Cons(head, tail.append(t))
+        is List.Cons -> List.Cons(head, tail.oldAppend(t))
     }
 
 tailrec fun <T> List<T>.isSorted(f: (T,T) -> Boolean): Boolean =
@@ -80,11 +68,61 @@ tailrec fun <T,V> List<T>.foldLeft(v: V, f: (T,V) -> V): V =
         is List.Cons -> tail.foldLeft(f(head, v), f)
     }
 
-fun <T,V> List<T>.foldRight(v: V, f: (T,V) -> V): V =
+fun <T> List<T>.reverse(): List<T> =
+    when (this) {
+        is List.Empty -> List.Empty
+        is List.Cons -> this.foldLeft(List.Empty as List<T>) { x,y -> List.Cons(x,y) }
+    }
+
+fun <T,V> List<T>.foldRight(v: V, f: (T, V) -> V): V =
+    this.reverse().foldLeft(v,f)
+
+fun <T,V> List<T>.unsafeFoldRight(v: V, f: (T, V) -> V): V =
     when (this) {
         is List.Empty -> v
-        is List.Cons -> f(head, tail.foldRight(v,f))
+        is List.Cons -> f(head, tail.unsafeFoldRight(v,f))
     }
+
+fun <T,V> List<T>.unsafeFoldLeft(v: V, f: (T,V) -> V): V =
+    this.reverse().unsafeFoldRight(v,f)
+
+fun <T> List<T>.append(t: T): List<T> =
+    this.foldRight(List.Cons(t, List.Empty)) { a,b -> List.Cons(a, b) }
+
+fun <T> List<T>.appendList(list: List<T>): List<T> =
+    TODO()
+
+// Write a function that concatenates a list of lists into a single list. Its runtime
+// should be linear in the total length of all lists. Use functions already defined.
+fun <T> concatLists(list: List<List<T>>): List<T> =
+    TODO()
+
+@Suppress("UNCHECKED_CAST")
+fun <T> sum(t1: T, t2: T): T where T: Number =
+    when (t1) {
+        is Byte -> (t1 + t2.toByte()) as T
+        is Short -> (t1 + t2.toShort()) as T
+        is Int -> (t1 + t2.toInt()) as T
+        is Long -> (t1 + t2.toLong()) as T
+        is Float -> (t1 + t2.toFloat()) as T
+        is Double -> (t1 + t2.toDouble()) as T
+        else -> throw UnsupportedOperationException("Unsupported type")
+    }
+
+@Suppress("UNCHECKED_CAST")
+fun  <T> product(t1: T, t2: T): T where T: Number =
+    when (t1) {
+        is Byte -> (t1 * t2.toByte()) as T
+        is Short -> (t1 * t2.toShort()) as T
+        is Int -> (t1 * t2.toInt()) as T
+        is Long -> (t1 * t2.toLong()) as T
+        is Float -> (t1 * t2.toFloat()) as T
+        is Double -> (t1 * t2.toDouble()) as T
+        else -> throw UnsupportedOperationException("Unsupported type")
+    }
+
+fun <T> List<T>.length(): Int =
+    this.unsafeFoldRight(0) { _, v -> v + 1 }
 
 fun <A,B,C> partial1(a: A, f: (A,B) -> C): (B) -> C =
     { b -> f(a,b) }
