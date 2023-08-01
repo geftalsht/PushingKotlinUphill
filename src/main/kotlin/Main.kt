@@ -1,5 +1,18 @@
 fun main() {
-    val foobar = listOf(12, 13, 2341, 3211)
+    val foobar = listOf(2, 4, 6, 8)
+
+    println(foobar)
+    val foobarTimes2 = foobar.map { x -> x*2 }
+    println(foobarTimes2)
+    val foobarNotDivisibleBy4 = foobar.filter { x -> x % 4 != 0 }
+    println(foobarNotDivisibleBy4)
+    val foobarFlatMapped = foobar.flatMap { x -> listOf(x, x*2) }
+    println(foobarFlatMapped)
+    val moreFoobar = listOf(4, 2, 1)
+    val evenMoreFoobar = foobar.appendList(moreFoobar)
+    val evenMoreFoobar1 = foobar.appendList1(moreFoobar)
+    println(evenMoreFoobar)
+    println(evenMoreFoobar1)
 }
 
 sealed interface List<out T> {
@@ -74,8 +87,11 @@ fun <T> List<T>.reverse(): List<T> =
         is List.Cons -> this.foldLeft(List.Empty as List<T>) { x,y -> List.Cons(x,y) }
     }
 
+fun <T,V> List<T>.foldRightReverse(v: V, f: (T, V) -> V): V =
+    reverse().foldLeft(v,f)
+
 fun <T,V> List<T>.foldRight(v: V, f: (T, V) -> V): V =
-    this.reverse().foldLeft(v,f)
+    foldLeft({ v1: V -> v1 }) { i, a -> { v2: V -> a(f(i,v2)) } }(v)
 
 fun <T,V> List<T>.unsafeFoldRight(v: V, f: (T, V) -> V): V =
     when (this) {
@@ -84,18 +100,45 @@ fun <T,V> List<T>.unsafeFoldRight(v: V, f: (T, V) -> V): V =
     }
 
 fun <T,V> List<T>.unsafeFoldLeft(v: V, f: (T,V) -> V): V =
-    this.reverse().unsafeFoldRight(v,f)
+    reverse().unsafeFoldRight(v,f)
 
 fun <T> List<T>.append(t: T): List<T> =
-    this.foldRight(List.Cons(t, List.Empty)) { a,b -> List.Cons(a, b) }
+    foldRight(List.Cons(t, List.Empty)) { a, b -> List.Cons(a, b) }
 
 fun <T> List<T>.appendList(list: List<T>): List<T> =
-    TODO()
+    when (this) {
+        is List.Empty -> list
+        is List.Cons -> foldRight(list) { i,a -> List.Cons(i,a) }
+    }
+
+fun <T> List<T>.appendList1(list: List<T>): List<T> =
+    foldRight(list) { i,a -> when (i) {
+        is List.Empty -> a
+        else -> List.Cons(i,a)
+    }}
 
 // Write a function that concatenates a list of lists into a single list. Its runtime
 // should be linear in the total length of all lists. Use functions already defined.
 fun <T> concatLists(list: List<List<T>>): List<T> =
     TODO()
+
+fun <T,V,Z> List<T>.zipWith(otherList: List<V>, f: (T, V) -> Z): List<Z> =
+    TODO()
+
+fun <T> List<T>.hasSubSequence(otherList: List<T>): Boolean =
+    TODO()
+
+fun <T,V> List<T>.map(f: (T) -> V): List<V> =
+    foldRight(List.Empty as List<V>) { x, y -> List.Cons(f(x),y) }
+
+fun <T,V> List<T>.flatMap(f: (T) -> List<V>): List<V> =
+    foldRight(List.Empty as List<V>) { x, y -> f(x).foldRight(y) { x1, y1 -> List.Cons(x1,y1) } }
+
+fun <T> List<T>.filter(f: (T) -> Boolean): List<T> =
+    foldRight(List.Empty as List<T>) { i, a -> when (f(i)) {
+        true -> List.Cons(i,a)
+        false -> a
+    }}
 
 @Suppress("UNCHECKED_CAST")
 fun <T> sum(t1: T, t2: T): T where T: Number =
@@ -110,7 +153,7 @@ fun <T> sum(t1: T, t2: T): T where T: Number =
     }
 
 @Suppress("UNCHECKED_CAST")
-fun  <T> product(t1: T, t2: T): T where T: Number =
+fun <T> product(t1: T, t2: T): T where T: Number =
     when (t1) {
         is Byte -> (t1 * t2.toByte()) as T
         is Short -> (t1 * t2.toShort()) as T
@@ -122,7 +165,7 @@ fun  <T> product(t1: T, t2: T): T where T: Number =
     }
 
 fun <T> List<T>.length(): Int =
-    this.unsafeFoldRight(0) { _, v -> v + 1 }
+    unsafeFoldRight(0) { _, v -> v + 1 }
 
 fun <A,B,C> partial1(a: A, f: (A,B) -> C): (B) -> C =
     { b -> f(a,b) }
