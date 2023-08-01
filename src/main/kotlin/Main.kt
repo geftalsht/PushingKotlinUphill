@@ -1,18 +1,27 @@
 fun main() {
     val foobar = listOf(2, 4, 6, 8)
+    println("foobar: $foobar")
+    println()
 
-    println(foobar)
     val foobarTimes2 = foobar.map { x -> x*2 }
-    println(foobarTimes2)
+    println("foobarTimes2: $foobarTimes2")
+    println()
+
     val foobarNotDivisibleBy4 = foobar.filter { x -> x % 4 != 0 }
-    println(foobarNotDivisibleBy4)
-    val foobarFlatMapped = foobar.flatMap { x -> listOf(x, x*2) }
-    println(foobarFlatMapped)
+    println("foobarFiltered: $foobarNotDivisibleBy4")
+    println()
+
+    val foobarFlatMapped1 = foobar.flatMap1 { x -> listOf(x, x*2) }
+    val foobarFlatMapped2 = foobar.flatMap2 { x -> listOf(x, x*2) }
+    println("foobarFlatMapped1: $foobarFlatMapped1")
+    println("foobarFlatMapped2: $foobarFlatMapped2")
+    println()
+
     val moreFoobar = listOf(4, 2, 1)
     val evenMoreFoobar = foobar.appendList(moreFoobar)
     val evenMoreFoobar1 = foobar.appendList1(moreFoobar)
-    println(evenMoreFoobar)
-    println(evenMoreFoobar1)
+    println("evenMoreFoobar: $evenMoreFoobar")
+    println("evenMoreFoobar1: $evenMoreFoobar1")
 }
 
 sealed interface List<out T> {
@@ -129,13 +138,19 @@ fun <T> List<T>.hasSubSequence(otherList: List<T>): Boolean =
     TODO()
 
 fun <T,V> List<T>.map(f: (T) -> V): List<V> =
-    foldRight(List.Empty as List<V>) { x, y -> List.Cons(f(x),y) }
+    foldRight(List.Empty as List<V>) { i,a -> List.Cons(f(i),a) }
 
 fun <T,V> List<T>.flatMap(f: (T) -> List<V>): List<V> =
-    foldRight(List.Empty as List<V>) { x, y -> f(x).foldRight(y) { x1, y1 -> List.Cons(x1,y1) } }
+    TODO()
+
+fun <T,V> List<T>.flatMap1(f: (T) -> List<V>): List<V> =
+    foldRight(List.Empty as List<V>) { i,a -> f(i).foldRight(a) { i1,a1 -> List.Cons(i1,a1) } }
+
+fun <T,V> List<T>.flatMap2(f: (T) -> List<V>): List<V> =
+    foldLeft(List.Empty as List<V>) { i,a -> a.appendList(f(i)) }
 
 fun <T> List<T>.filter(f: (T) -> Boolean): List<T> =
-    foldRight(List.Empty as List<T>) { i, a -> when (f(i)) {
+    foldRight(List.Empty as List<T>) { i,a -> when (f(i)) {
         true -> List.Cons(i,a)
         false -> a
     }}
