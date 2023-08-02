@@ -12,7 +12,7 @@ fun main() {
     println()
 
     val foobarFlatMapped1 = foobar.flatMap1 { x -> listOf(x, x*2) }
-    val foobarFlatMapped2 = foobar.flatMap2 { x -> listOf(x, x*2) }
+    val foobarFlatMapped2 = foobar.flatMapL { x -> listOf(x, x*2) }
     println("foobarFlatMapped1: $foobarFlatMapped1")
     println("foobarFlatMapped2: $foobarFlatMapped2")
     println()
@@ -137,8 +137,8 @@ fun <T> List<T>.appendList1(list: List<T>): List<T> =
 
 // Write a function that concatenates a list of lists into a single list. Its runtime
 // should be linear in the total length of all lists. Use functions already defined.
-fun <T> concatLists(list: List<List<T>>): List<T> =
-    TODO()
+fun <T> List<List<T>>.flatten(): List<T> =
+    foldLeft(List.Empty as List<T>) { i, a -> a.appendList(i) }
 
 fun <T,V,Z> List<T>.zipWith(otherList: List<V>, f: (T, V) -> Z): List<Z> =
     TODO()
@@ -149,15 +149,18 @@ fun <T> List<T>.hasSubSequence(otherList: List<T>): Boolean =
 fun <T,V> List<T>.map(f: (T) -> V): List<V> =
     foldRight(List.Empty as List<V>) { i,a -> List.Cons(f(i),a) }
 
-// Do it with appendList() and foldRight()
 fun <T,V> List<T>.flatMap(f: (T) -> List<V>): List<V> =
+    map(f).flatten()
+
+// Do it with appendList() and foldRight()
+fun <T,V> List<T>.flatMapR(f: (T) -> List<V>): List<V> =
     foldRight(List.Empty as List<V>) { i, a -> f(i).appendList(a) }
+
+fun <T,V> List<T>.flatMapL(f: (T) -> List<V>): List<V> =
+    foldLeft(List.Empty as List<V>) { i,a -> a.appendList(f(i)) }
 
 fun <T,V> List<T>.flatMap1(f: (T) -> List<V>): List<V> =
     foldRight(List.Empty as List<V>) { i,a -> f(i).foldRight(a) { i1,a1 -> List.Cons(i1,a1) } }
-
-fun <T,V> List<T>.flatMap2(f: (T) -> List<V>): List<V> =
-    foldLeft(List.Empty as List<V>) { i,a -> a.appendList(f(i)) }
 
 // Implement filter using flatMap
 fun <T> List<T>.filter(f: (T) -> Boolean): List<T> =
