@@ -3,16 +3,16 @@ fun main() {
     println("foobar: $foobar")
     println()
 
-    val foobarTimes2 = foobar.map { x -> x*2 }
+    val foobarTimes2 = foobar.map { x -> x * 2 }
     println("foobarTimes2: $foobarTimes2")
     println()
 
-    val foobarNotDivisibleBy4 = foobar.filter1 { x -> x % 4 != 0 }
+    val foobarNotDivisibleBy4 = foobar.filter { x -> x % 4 != 0 }
     println("foobarFiltered: $foobarNotDivisibleBy4")
     println()
 
-    val foobarFlatMapped1 = foobar.flatMap1 { x -> listOf(x, x*2) }
-    val foobarFlatMapped2 = foobar.flatMapL { x -> listOf(x, x*2) }
+    val foobarFlatMapped1 = foobar.flatMapR { x -> listOf(x, x * 2) }
+    val foobarFlatMapped2 = foobar.flatMapL { x -> listOf(x, x * 2) }
     println("foobarFlatMapped1: $foobarFlatMapped1")
     println("foobarFlatMapped2: $foobarFlatMapped2")
     println()
@@ -25,7 +25,7 @@ fun main() {
 }
 
 sealed interface List<out T> {
-    data object Empty: List<Nothing>
+    object Empty: List<Nothing>
     data class Cons<T> (val head: T, val tail: List<T>): List<T>
 }
 
@@ -163,10 +163,13 @@ fun <T,V> List<T>.flatMap1(f: (T) -> List<V>): List<V> =
     foldRight(List.Empty as List<V>) { i,a -> f(i).foldRight(a) { i1,a1 -> List.Cons(i1,a1) } }
 
 // Implement filter using flatMap
-fun <T> List<T>.filter(f: (T) -> Boolean): List<T> =
-    TODO()
-
 fun <T> List<T>.filter1(f: (T) -> Boolean): List<T> =
+    flatMap { i -> when (f(i)) {
+        true -> List.Cons(i, List.Empty)
+        false -> List.Empty
+    } }
+
+fun <T> List<T>.filter(f: (T) -> Boolean): List<T> =
     foldRight(List.Empty as List<T>) { i,a -> when (f(i)) {
         true -> List.Cons(i,a)
         false -> a
