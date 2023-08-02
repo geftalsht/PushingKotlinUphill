@@ -7,7 +7,7 @@ fun main() {
     println("foobarTimes2: $foobarTimes2")
     println()
 
-    val foobarNotDivisibleBy4 = foobar.filter { x -> x % 4 != 0 }
+    val foobarNotDivisibleBy4 = foobar.filter1 { x -> x % 4 != 0 }
     println("foobarFiltered: $foobarNotDivisibleBy4")
     println()
 
@@ -99,8 +99,17 @@ fun <T> List<T>.reverse(): List<T> =
 fun <T,V> List<T>.foldRightReverse(v: V, f: (T, V) -> V): V =
     reverse().foldLeft(v,f)
 
+// If nothing to do, then identity
+// So it makes sense for the accumulator to be the identity morphism (V) -> V
+// Also (T,V) -> V becomes (T) -> V -> V
+// Does that remind you of anything?
 fun <T,V> List<T>.foldRight(v: V, f: (T, V) -> V): V =
     foldLeft({ v1: V -> v1 }) { i, a -> { v2: V -> a(f(i,v2)) } }(v)
+
+// Implement foldLeft with foldRight
+// HOLY SHIT I DID IT!
+fun <T,V> List<T>.foldLeftR(v: V, f: (T, V) -> V): V =
+    foldRight({ v1: V -> v1 }) { i, a -> { v2: V -> f(i,a(v2)) } }(v)
 
 fun <T,V> List<T>.unsafeFoldRight(v: V, f: (T, V) -> V): V =
     when (this) {
@@ -140,6 +149,7 @@ fun <T> List<T>.hasSubSequence(otherList: List<T>): Boolean =
 fun <T,V> List<T>.map(f: (T) -> V): List<V> =
     foldRight(List.Empty as List<V>) { i,a -> List.Cons(f(i),a) }
 
+// Do it with appendList() and foldRight()
 fun <T,V> List<T>.flatMap(f: (T) -> List<V>): List<V> =
     TODO()
 
@@ -149,7 +159,11 @@ fun <T,V> List<T>.flatMap1(f: (T) -> List<V>): List<V> =
 fun <T,V> List<T>.flatMap2(f: (T) -> List<V>): List<V> =
     foldLeft(List.Empty as List<V>) { i,a -> a.appendList(f(i)) }
 
+// Implement filter using flatMap
 fun <T> List<T>.filter(f: (T) -> Boolean): List<T> =
+    TODO()
+
+fun <T> List<T>.filter1(f: (T) -> Boolean): List<T> =
     foldRight(List.Empty as List<T>) { i,a -> when (f(i)) {
         true -> List.Cons(i,a)
         false -> a
