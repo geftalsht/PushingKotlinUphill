@@ -25,7 +25,7 @@ fun main() {
 }
 
 sealed interface List<out T> {
-    object Empty: List<Nothing>
+    data object Empty: List<Nothing>
     data class Cons<T> (val head: T, val tail: List<T>): List<T>
 }
 
@@ -151,7 +151,7 @@ fun <T,V> List<T>.map(f: (T) -> V): List<V> =
 
 // Do it with appendList() and foldRight()
 fun <T,V> List<T>.flatMap(f: (T) -> List<V>): List<V> =
-    TODO()
+    foldRight(List.Empty as List<V>) { i, a -> f(i).appendList(a) }
 
 fun <T,V> List<T>.flatMap1(f: (T) -> List<V>): List<V> =
     foldRight(List.Empty as List<V>) { i,a -> f(i).foldRight(a) { i1,a1 -> List.Cons(i1,a1) } }
