@@ -140,8 +140,29 @@ fun <T> List<T>.appendList1(list: List<T>): List<T> =
 fun <T> List<List<T>>.flatten(): List<T> =
     foldLeft(List.Empty as List<T>) { i, a -> a.appendList(i) }
 
-fun <T,V,Z> List<T>.zipWith(otherList: List<V>, f: (T, V) -> Z): List<Z> =
-    TODO()
+fun <T,U> List<T>.zip(list: List<U>): List<Pair<T,U>> {
+    tailrec fun go(list1: List<T>, list2: List<U>, acc: List<Pair<T,U>>): List<Pair<T,U>> =
+        when {
+            list1 is List.Cons && list2 is List.Cons -> go(list1.tail(), list2.tail(), acc.append(Pair(list1.head, list2.head)))
+            else -> acc
+        }
+    return go(this, list, List.Empty as List<Pair<T, U>>)
+}
+
+fun <T,V,Z> List<T>.zipWith1(otherList: List<V>, f: (T, V) -> Z): List<Z> =
+    zip(otherList).map { pair -> f(pair.first, pair.second) }
+
+fun List<Int>.add(other: List<Int>): List<Int> =
+    when {
+        this is List.Cons && other is List.Cons -> List.Cons(this.head + other.head, tail.add(other.tail))
+        else -> List.Empty
+    }
+
+fun <T,V,Z> List<T>.zipWith(other: List<V>, f: (T, V) -> Z): List<Z> =
+    when {
+        this is List.Cons && other is List.Cons -> List.Cons(f(head, other.head), tail.zipWith(other.tail, f))
+        else -> List.Empty
+    }
 
 fun <T> List<T>.hasSubSequence(otherList: List<T>): Boolean =
     TODO()
