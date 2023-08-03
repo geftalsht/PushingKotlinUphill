@@ -20,8 +20,10 @@ fun main() {
     val moreFoobar = listOf(4, 2, 1)
     val evenMoreFoobar = foobar.appendList(moreFoobar)
     val evenMoreFoobar1 = foobar.appendList1(moreFoobar)
+    val evenMoreFoobar2 = foobar.appendList2(moreFoobar)
     println("evenMoreFoobar: $evenMoreFoobar")
     println("evenMoreFoobar1: $evenMoreFoobar1")
+    println("evenMoreFoobar2: $evenMoreFoobar2")
 }
 
 sealed interface List<out T> {
@@ -135,6 +137,12 @@ fun <T> List<T>.appendList1(list: List<T>): List<T> =
         else -> List.Cons(i,a)
     }}
 
+fun <T> List<T>.appendList2(list: List<T>): List<T> =
+    when (this) {
+        is List.Empty -> list
+        is List.Cons -> List.Cons(head, tail.appendList2(list))
+    }
+
 // Write a function that concatenates a list of lists into a single list. Its runtime
 // should be linear in the total length of all lists. Use functions already defined.
 fun <T> List<List<T>>.flatten(): List<T> =
@@ -163,6 +171,14 @@ fun <T,V,Z> List<T>.zipWith(other: List<V>, f: (T, V) -> Z): List<Z> =
         this is List.Cons && other is List.Cons -> List.Cons(f(head, other.head), tail.zipWith(other.tail, f))
         else -> List.Empty
     }
+
+fun <T,V,Z> List<T>.zipWith2(other: List<V>, f: (T, V) -> Z): List<Z> = when (this) {
+    is List.Empty -> List.Empty
+    is List.Cons -> when (other) {
+        is List.Empty -> List.Empty
+        is List.Cons -> List.Cons(f(head, other.head), tail.zipWith(other.tail, f))
+    }
+}
 
 fun <T> List<T>.hasSubSequence(otherList: List<T>): Boolean =
     TODO()
