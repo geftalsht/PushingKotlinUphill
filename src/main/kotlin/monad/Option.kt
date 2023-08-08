@@ -41,10 +41,15 @@ fun <T> Option<T>.filter(f: (T) -> Boolean): Option<T> = when (this) {
     }
 }
 
-// TODO understand this
 fun <T,V,R> map2(a: Option<T>, b: Option<V>, f: (T,V) -> R): Option<R> = a.flatMap { av -> b.map { bv -> f(av,bv) } }
 
-// TODO map3 and map4
+fun <T,V,W,R> map3(a: Option<T>, b: Option<V>, c: Option<W>, f: (T,V,W) -> R): Option<R> = a.flatMap {
+    av -> b.flatMap { bv -> c.map { cv -> f(av,bv,cv) } }
+}
+
+fun <T,V,W,X,R> map4(a: Option<T>, b: Option<V>, c: Option<W>, d: Option<X>, f: (T,V,W,X) -> R): Option<R> = a.flatMap {
+    av -> b.flatMap { bv -> c.flatMap { cv -> d.map { dv -> f(av,bv,cv,dv) } } }
+}
 
 fun <T,V> Option<T>.traverse(f: (T) -> Option<V>): Option<Option<V>> =
     TODO()
