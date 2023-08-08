@@ -51,5 +51,4 @@ fun <T,V> Option<T>.traverse(f: (T) -> Option<V>): Option<Option<V>> =
 
 // TODO parTraverse*
 
-fun <A,B> lift(f: (A) -> B): (Option<A>) -> Option<B> =
-    TODO()
+fun <A,B> lift(f: (A) -> B): (Option<A>) -> Option<B> = { a: Option<A> -> a.map(f) }
