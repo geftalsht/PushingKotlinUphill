@@ -1,5 +1,7 @@
 package monad
 
+import list.List
+
 sealed class Option<out T> {
     companion object {
         fun <T> of(value: T?): Option<T> = when (value == null) {
@@ -51,8 +53,10 @@ fun <T,V,W,X,R> map4(a: Option<T>, b: Option<V>, c: Option<W>, d: Option<X>, f: 
     av -> b.flatMap { bv -> c.flatMap { cv -> d.map { dv -> f(av,bv,cv,dv) } } }
 }
 
-fun <T,V> Option<T>.traverse(f: (T) -> Option<V>): Option<Option<V>> =
-    TODO()
+fun <T,V> Option<T>.traverse(f: (T) -> Option<V>): Option<Option<V>> = when (this) {
+    is None -> Some(None)
+    is Some -> Some(f(value))
+}
 
 // TODO parTraverse*
 
