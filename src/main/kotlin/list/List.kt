@@ -149,8 +149,16 @@ fun <T,V,Z> List<T>.zipWith2(other: List<V>, f: (T, V) -> Z): List<Z> = when (th
     }
 }
 
-fun <T> List<T>.hasSubSequence(otherList: List<T>): Boolean =
-    TODO()
+tailrec fun <T> List<T>.hasSubSequence(otherList: List<T>): Boolean = when (otherList) {
+    is List.Empty -> true
+    is List.Cons -> when (this) {
+        is List.Empty -> false
+        is List.Cons -> when (head == otherList.head) {
+            true -> tail.hasSubSequence(otherList.tail)
+            false -> tail.hasSubSequence(otherList)
+        }
+    }
+}
 
 fun <T,V> List<T>.map(f: (T) -> V): List<V> =
     foldRight(List.Empty as List<V>) { i, a -> List.Cons(f(i),a) }

@@ -27,6 +27,11 @@ fun main() {
     println("evenMoreFoobar: $evenMoreFoobar")
     println("evenMoreFoobar1: $evenMoreFoobar1")
     println("evenMoreFoobar2: $evenMoreFoobar2")
+    println()
+    println(evenMoreFoobar.hasSubSequence(listOf(4)))
+    println(evenMoreFoobar.hasSubSequence(listOf(5)))
+    println(evenMoreFoobar.hasSubSequence(listOf(4,2)))
+    println(evenMoreFoobar.hasSubSequence(listOf(2,1)))
 }
 
 fun List<Int>.add(other: List<Int>): List<Int> =
