@@ -1,7 +1,5 @@
 package monad
 
-import list.List
-
 sealed class Option<out T> {
     companion object {
         fun <T> of(value: T?): Option<T> = when (value == null) {
