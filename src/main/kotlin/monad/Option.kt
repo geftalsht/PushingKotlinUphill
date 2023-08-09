@@ -42,6 +42,12 @@ fun <T> Option<T>.filter(f: (T) -> Boolean): Option<T> = when (this) {
 }
 
 fun <T,V,R> map2(a: Option<T>, b: Option<V>, f: (T,V) -> R): Option<R> = a.flatMap { av -> b.map { bv -> f(av,bv) } }
+// bv -> f(av,bv) = (V) -> R
+// b.map { bv -> f(av,bv) } = (Option<V>, (V) -> R) -> Option<R> = Option<V> -> (V -> R) -> Option<R>
+// av -> b.map { bv -> f(av,bv) } = (T) -> Option<R>
+// a.flatMap { av -> b.map { bv -> f(av,bv) } } = (Option<T>, (T) -> Option<R>) -> Option<R>
+
+fun <T,V,R> map2e(a: Option<T>, b: Option<V>, f: (T,V) -> R): Option<R> = b.flatMap { bv -> a.map { av -> f(av,bv) } }
 
 fun <T,V,W,R> map3(a: Option<T>, b: Option<V>, c: Option<W>, f: (T,V,W) -> R): Option<R> = a.flatMap {
     av -> b.flatMap { bv -> c.map { cv -> f(av,bv,cv) } }
