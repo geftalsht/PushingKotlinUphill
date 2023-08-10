@@ -1,5 +1,7 @@
 import list.*
 import list.List
+import monad.read
+import monad.print
 
 fun main() {
     val foobar = listOf(2, 4, 6, 8)
@@ -32,6 +34,17 @@ fun main() {
     println(evenMoreFoobar.hasSubSequence(listOf(5)))
     println(evenMoreFoobar.hasSubSequence(listOf(4,2)))
     println(evenMoreFoobar.hasSubSequence(listOf(2,1)))
+    println(evenMoreFoobar.hasSubSequence(listOf(2,4,6,8,4,2,1)))
+    println(evenMoreFoobar.hasSubSequence(listOf(1)))
+    println(evenMoreFoobar.hasSubSequence(listOf(2,4,6,8,4,2)))
+    println()
+
+    val something = print("What is your name?")
+        .flatMap { read() } // IO<String>
+        .flatMap { name -> print("Hello $name") }
+        .toOption()
+
+    println(something)
 }
 
 fun List<Int>.add(other: List<Int>): List<Int> =

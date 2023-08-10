@@ -1,5 +1,7 @@
 package monad
 
+import list.List
+
 sealed class Option<out T> {
     companion object {
         fun <T> of(value: T?): Option<T> = when (value == null) {
@@ -61,5 +63,8 @@ fun <T,V> Option<T>.traverse(f: (T) -> Option<V>): Option<Option<V>> = when (thi
     is None -> Some(None)
     is Some -> Some(f(value))
 }
+
+// If something failed Option.Empty
+fun <T, V> List<T>.traverse(f: (T) -> Option<V>): Option<List<V>> = TODO()
 
 fun <A,B> lift(f: (A) -> B): (Option<A>) -> Option<B> = { a: Option<A> -> a.map(f) }
