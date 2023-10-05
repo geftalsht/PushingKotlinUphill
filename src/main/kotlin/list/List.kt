@@ -3,6 +3,13 @@ package list
 sealed interface List<out T> {
     data object Empty: List<Nothing>
     data class Cons<T> (val head: T, val tail: List<T>): List<T>
+
+    companion object {
+        fun <T> of(vararg t: T): List<T> = when (t.isEmpty()) {
+            true -> Empty
+            false -> Cons(t.first(), of(*t.sliceArray(1 until t.size)))
+        }
+    }
 }
 
 fun <T> listOf(vararg t: T): List<T> {
@@ -42,6 +49,10 @@ fun <T> List<T>.init(): List<T> =
             else List.Cons(head, tail.init())
     }
 
+@Deprecated(
+    message = "Use List<T>.append(T) instead",
+    replaceWith = ReplaceWith(expression = "this.append(t)", imports = [])
+)
 fun <T> List<T>.oldAppend(t: T): List<T> =
     when (this) {
         is List.Empty -> List.Cons(t, List.Empty)
@@ -88,12 +99,20 @@ fun <T,V> List<T>.foldRight(v: V, f: (T, V) -> V): V =
 fun <T,V> List<T>.foldLeftR(v: V, f: (T, V) -> V): V =
     foldRight({ v1: V -> v1 }) { i, a -> { v2: V -> f(i,a(v2)) } }(v)
 
+@Deprecated(
+    message = "Use List<T>.foldRight(V, (T,V) -> V) instead",
+    replaceWith = ReplaceWith(expression = "this.foldRight(v, f)", imports = [])
+)
 fun <T,V> List<T>.unsafeFoldRight(v: V, f: (T, V) -> V): V =
     when (this) {
         is List.Empty -> v
         is List.Cons -> f(head, tail.unsafeFoldRight(v,f))
     }
 
+@Deprecated(
+    message = "Use List<T>.foldLeft(V, (T,V) -> V) instead",
+    replaceWith = ReplaceWith(expression = "this.foldLeft(v, f)", imports = [])
+)
 fun <T,V> List<T>.unsafeFoldLeft(v: V, f: (T, V) -> V): V =
     reverse().unsafeFoldRight(v,f)
 
@@ -190,4 +209,4 @@ fun <T> List<T>.filter(f: (T) -> Boolean): List<T> =
     }}
 
 fun <T> List<T>.length(): Int =
-    unsafeFoldRight(0) { _, v -> v + 1 }
+    foldRight(0 ) { _, v -> v + 1 }

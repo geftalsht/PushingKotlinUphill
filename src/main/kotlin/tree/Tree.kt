@@ -1,8 +1,8 @@
 package tree
 
-sealed class Tree<out A> {
-    data class Leaf<A>(val value: A): Tree<A>()
-    data class Branch<A>(val left: Tree<A>, val right: Tree<A>): Tree<A>()
+sealed interface Tree<out A> {
+    data class Leaf<A>(val value: A): Tree<A>
+    data class Branch<A>(val left: Tree<A>, val right: Tree<A>): Tree<A>
 }
 
 fun <A> Tree<A>.size(): Int = when (this) {

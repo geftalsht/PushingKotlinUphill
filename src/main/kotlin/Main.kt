@@ -45,6 +45,12 @@ fun main() {
         .toOption()
 
     println(something)
+
+    val streamBar = Stream.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    println(streamBar.sum())
+
+    val listLessThan6 = streamBar.takeWhile { it < 6 }.toList()
+    println(listLessThan6)
 }
 
 fun List<Int>.add(other: List<Int>): List<Int> =
