@@ -103,6 +103,13 @@ tailrec fun <T> Stream<T>.forAll(p: (T) -> Boolean): Boolean = when (this) {
     }
 }
 
+fun <T> Stream<T>.forAllFold(p: (T) -> Boolean): Boolean = foldRight({ true }) { t,acc ->
+    when (p(t)) {
+        false -> false
+        true -> acc()
+    }
+}
+
 // Implement takeWhile with foldRight
 fun <T> Stream<T>.takeWhileFold(p: (T) -> Boolean): Stream<T> = foldRight({ empty() }) { t,acc ->
     when (p(t)) {
