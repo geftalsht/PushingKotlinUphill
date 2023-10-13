@@ -120,8 +120,19 @@ fun <T> Stream<T>.takeWhileFold(p: (T) -> Boolean): Stream<T> = foldRight({ empt
 // Implement headOption with foldRight
 fun <T> Stream<T>.headOptionFold(): Option<T> = foldRight<T,Option<T>>({ None }) { t,_ -> Some(t) }
 
-// TODO take(n elements), takeWhile(fun), drop(n), (terminal) foldRight(), Stream<Int>.sum() through foldRight (to try),
-// TODO in case succeed write to Pavel ask more
+// Implement using foldRight
+fun <T,V> Stream<T>.map(f: (T) -> V): Stream<V> = foldRight({ empty() }) { t,acc -> cons({ f(t) }, acc) }
 
-// map, filter, append, flatmap through foldRight
-// append should be non-strict in its argument
+// Implement using foldRight
+fun <T> Stream<T>.filter(p: (T) -> Boolean): Stream<T> = foldRight({ empty() }) { t,acc ->
+    when (p(t)) {
+        false -> acc()
+        true -> cons({ t }, acc)
+    }
+}
+
+// Implement using foldRight
+fun <T> Stream<T>.append(t: () -> Stream<T>): Stream<T> = foldRight(t) { i,acc -> cons({ i }, acc) }
+
+// Implement using foldRight
+fun <T,V> Stream<T>.flatMap(f: (T) -> Stream<V>): Stream<V> = foldRight({ empty() }) { t,acc -> f(t).append(acc) }
